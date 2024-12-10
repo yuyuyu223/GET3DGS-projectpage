@@ -1,6 +1,6 @@
 ---
 layout: ../layouts/Layout.astro
-title: Academic Project Page Template
+title: "GET3DGS: Generate 3D Gaussians Based on Points Deformation Fields"
 description: Simple project page template for your research paper, built with Astro and Tailwind CSS
 favicon: favicon.svg
 thumbnail: screenshot.png
@@ -18,8 +18,12 @@ import TwoColumns from "../components/TwoColumns.astro";
 import YouTubeVideo from "../components/YouTubeVideo.astro";
 import LaTeX from "../components/LaTeX.astro";
 
-import outside from "../assets/outside.mp4";
-import transformer from "../assets/transformer.webp";
+import car_video from "../assets/car.mp4";
+import chair_video from "../assets/chair.mp4";
+import motorbike_video from "../assets/motor.mp4";
+import game_video from "../assets/game.mp4";
+import beamcar_video from "../assets/beamcar.mp4";
+import arch_img from "../assets/TCSVT2024.jpeg";
 import Splat from "../components/Splat.tsx"
 
 import CodeBlock from "../components/CodeBlock.astro";
@@ -30,46 +34,47 @@ export const components = {pre: CodeBlock, table: Table}
   title={frontmatter.title}
   authors={[
     {
-      name: "Roman Hauksson",
+      name: "Haochen Yu",
       url: "https://roman.technology",
-      institution: "Independent",
-      notes: ["*", "†"],
+      institution: "University of Science and Technology Beijing",
+      notes: ["*"],
     },
     {
-      name: "Author Two",
-      institution: "Institution Two",
-      notes: ["*", "†"],
+      name: "Weixi Gong",
+      institution: "University of Science and Technology Beijing",
+      notes: [],
     },
     {
-      name: "Author Three",
-      institution: "Institution Three",
+      name: "Jiansheng Chen",
+      institution: "University of Science and Technology Beijing",
+      notes: [],
+    },
+    {
+      name: "Huimin Ma",
+      institution: "University of Science and Technology Beijing",
       notes: ["†"],
     },
-    {
-      name: "Author Four",
-      institution: "Institution Four",
-    },
   ]}
-  conference="Conference Name"
+  conference="TCSVT 2024"
   notes={[
     {
       symbol: "*",
-      text: "author note one",
+      text: "First author",
     },
     {
       symbol: "†",
-      text: "author note two",
+      text: "Corresponding author",
     },
   ]}
   links={[
     {
       name: "Paper",
-      url: "",
+      url: "https://ieeexplore.ieee.org/document/10777594",
       icon: "fa-solid:file-pdf",
     },
     {
       name: "Code",
-      url: "https://github.com/RomanHauksson/academic-project-astro-template",
+      url: "https://gitee.com/HowsenFisher/get3-dgs",
       icon: "mdi:github",
     },
     {
@@ -80,13 +85,15 @@ export const components = {pre: CodeBlock, table: Table}
   ]}
   />
 
-<Video source={outside} />
+
+
+        
 
 <HighlightedSection>
 
 ## Abstract
 
-This is a live demo for a template you can use to create a simple project page for your research paper. See the code for the template and instructions on how to use it yourself [here](https://github.com/RomanHauksson/academic-project-astro-template). It's made with the [Astro web framework](https://astro.build/) and styled with [Tailwind CSS](https://tailwindcss.com/). You write the content in [MDX](https://mdxjs.com/), which enables markdown formatting like **bold**, _italics_, and ~strikethrough~, as well as custom components like <SmallCaps>small caps.</SmallCaps>
+The 3D Gaussian Splatting method has recently shown significant advancements in rendering speed and scene composition quality, enhancing its industrial applications and boosting the demand for 3D Gaussian asset generation. However, existing mature 3D generation technologies predominantly rely on implicit representations, which often struggle to balance geometric quality with editability. The production of 3D Gaussian assets generally involves diffusion models that require a dual-stage process of reconstruction and generation, resulting in substantial training and inference costs. To overcome these challenges, we introduce GET3DGS, an innovative approach that combines 3D-aware GANs with 3D Gaussian Splatting representations. This method facilitates the manipulation of the physical attributes of 3D Gaussians, such as geometry and texture, via point deformation fields. Offering faster inference speeds and end-to-end training capabilities, our model outperforms existing diffusion model-based methods. By deriving high-quality Gaussian point cloud geometric representations from 2D images, our approach reduces material accumulation costs and produces data compatible with 3D Gaussian rendering engines. We have evaluated the generative performance of our model on ShapeNet and OmniObject3D and demonstrate competitive results in terms of image and geometric quality relative to previous methods.
 
 </HighlightedSection>
 
@@ -95,60 +102,111 @@ This is a live demo for a template you can use to create a simple project page f
 Use the figure component to display images, videos, equations, or any other element, with an optional caption.
 
 <Figure
-    caption="Diagram of the transformer deep learning architecture."
+    caption="The main architecture diagram of our model GET3DGS, which is a 3D-aware GAN structure. The network includes geometry collapse fields and points SH fields. These two fields jointly constitute the points deformation fields. Both fields have generator blocks, feature aggregate modules, and an MLP decoder."
   >
-    <Image source={transformer} altText="Diagram of the transformer deep learning architecture." />
+    <Image source={arch_img} altText="Diagram of the transformer deep learning architecture." />
 </Figure>
 
-## Two columns
 
-Use the two columns component to display two columns of content. In this example, the first column contains a figure with a YouTube video and the second column contains a figure with a custom [React](https://react.dev/) component. By default, they display side by side, but if the screen is narrow enough (for example, on mobile), they're arranged vertically.
 
-<TwoColumns>
-  <Figure slot="left" caption="Take a look at this YouTube video.">
-    <YouTubeVideo videoId="wjZofJX0v4M" />
-  </Figure>
-  <Figure slot="right" caption="Now look at this Gaussian Splat, rendered with a React component.">
-    <Splat client:idle />
-  </Figure>
-</TwoColumns>
+## Methods
 
-## Heading levels
+The geometry collapse fields are designed to map a template point cloud to a specific distribution, addressing the challenges of large solution spaces and unordered point cloud data. By introducing a strategy of density correction followed by radial collapse, the approach optimizes the solution space and point cloud density. This involves computing radial and rotational offsets in spherical coordinates, with the deformation function segmented into radial and rotational components. The method employs a feature aggregate module and a bi-plane structure for efficient feature utilization, enhancing network stability and rendering quality. The final representation integrates 3D Gaussian attributes, using activation functions to constrain physical attributes and prevent gradient instability.
+<LaTeX formula="\begin{aligned}
+CF&([r,\theta,\varphi],\mathbf{z}_{g})\\
+        &=(r-\hat{r}_{\mathbf{z}_{g}}r,\theta+\hat{\theta}_{\mathbf{z}_{g}}\cdot2\pi,\varphi+\hat{\varphi}_{\mathbf{z}_{g}}\cdot\pi)\\
+        &=(r,\theta,\varphi)+(-r,2\pi,\pi)\cdot diag(\hat{r}_{\mathbf{z}_{g}},\hat{\theta}_{\mathbf{z}_{g}},\hat{\varphi}_{\mathbf{z}_{g}})
+\end{aligned}" />
 
-Use headings to divide your content into sections.
 
-### Heading 3
+The points SH fields are responsible for generating the texture of 3D Gaussians, utilizing a structure similar to the geometry collapse fields. Texture noise is encoded into a styled vector and processed through a textural generator block, with SH features generated on two planes to aid in shape coloring. Geometric excitation is applied by injecting intermediate features from the geometry collapse fields into the points SH fields, modulating the texture to adapt to the geometric distribution. This modulation ensures that texture features are influenced appropriately by geometry without being overwhelmed. The geometry and texture stylized vectors are concatenated to guide the MLP decoder in outputting texture attributes. The same sampling and aggregation methods used in geometry collapse fields are applied, allowing the learning of SH coefficients for effective texture representation.
 
-Go down a level to heading 3...
+<LaTeX formula="
+\begin{aligned}
+    SHs&=SF(\vec{x},\mathbf{z}_{t},\mathbf{z}_g) \\
+    &=F_{t}(FA(G_{t}(M_t(\mathbf{z}_t), G_{g}(M_g(\mathbf{z}_g))), \theta,\varphi),\\
+    &M_t(\mathbf{z}_t) \oplus M_g(\mathbf{z}_g), H_{t}(\vec{x}))
+\end{aligned}
+" />
 
-#### Heading 4
+Progressive densification training is a strategy designed to address the complexity of learning geometry and color mappings for large point clouds, especially when using GANs. This approach combines progressive generator resolution with the splitting of 3D Gaussians. Initially, a base resolution is set, and as training progresses, the resolution is doubled, allowing the model to densify by splitting coordinate positions. This method leverages the learnable rotation and scaling capabilities of Gaussian point clouds, ensuring training stability without reinitialization. At lower resolutions, fewer 3D Gaussians approximate the object's basic structure and color, while high-resolution training refines these details. The process is mathematically described by progressively blending features from current and previous resolutions. Additionally, a Gaussian template is used to ensure uniform point distribution across a sphere's surface, calculated using spherical coordinates. This template adapts to different resolutions by increasing point density, as detailed in the experimental configurations.
 
-...and down again to heading 4.
+<LaTeX formula="
+\begin{aligned}
+    \mathbf{f}_g^{R}(\vec{x})&=FA(G_{g}^{R}(M_g(\mathbf{z}_g),\theta,\varphi)\\
+    \mathbf{f}_t^{R}(\vec{x})&=FA(G_{t}^{R}(M_t(\mathbf{z}_t),G_{g}^{R}(M_g(\mathbf{z}_g))),\theta,\varphi)\\
+    \mathbf{f}_g^{R}(\vec{x}) &=  \mathbf{f}_g^{R}(\vec{x}) \cdot \alpha  + \mathbf{f}_g^{R-1}(\vec{x}) \cdot (1-\alpha)\\
+    \mathbf{f}_t^{R}(\vec{x}) &= \mathbf{f}_t^{R}(\vec{x}) \cdot \alpha + \mathbf{f}_t^{R-1}(\vec{x}) \cdot (1-\alpha)
+\end{aligned}
+" />
 
-## LaTeX
+## Results
 
-You can also add LaTeX formulas, rendered during the build process using [KaTeX](https://katex.org/) so they're quick to load for visitors of your project page. You can write them inline, like this: <LaTeX inline formula="a^2 + b^2 = c^2" />. Or, you can write them as a block:
+| Dataset | Type | Model | FID↓ | KID↓(‰) | COV↑(%) | MMD↓ |
+|---------|------|-------|------|----------|---------|-------|
+| Car | 3D | PointFlow | - | - | 60.57 | __0.85__ |
+| | 3D | DiT-3D | - | - | 31.70 | 2.98 |
+| | 3D | DPM | - | - | 60.24 | 0.95 |
+| | 3D | PSF | - | - | __70.73__ | 1.03 |
+| | 3D | MeshDiffusion | - | - | 66.55 | 1.12 |
+| |-------|-------|------|----------|---------|-------|
+| | 2D→3D | GET3D | 13.19 | 5.66 | 44.13 | **0.80** |
+| | 2D→3D | DiffTF | 73.21 | 58.72 | 49.53 | 1.36 |
+| | 2D→3D | GaussianCube | 16.77 | 5.22 | 61.48 | 0.90 |
+| | 2D→3D | GET3DGS(ours) | **11.03** | **4.17** | **66.97** | 1.04 |
+|---------|------|-------|------|----------|---------|-------|
+| Chair | 3D | PointFlow | - | - | 72.94 | 2.67 |
+| | 3D | DiT-3D | - | - | 76.83 | 2.82 |
+| | 3D | DPM | - | - | 81.73 | 2.87 |
+| | 3D | PSF | - | - | 81.92 | __2.65__ |
+| | 3D | MeshDiffusion | - | - | __82.26__ | 2.65 |
+| |-------|-------|------|----------|---------|-------|
+| | 2D→3D | GET3D | 30.16 | 18.32 | 69.92 | 3.90 |
+| | 2D→3D | DiffTF | 80.56 | 65.34 | **76.22** | 3.64 |
+| | 2D→3D | GaussianCube | 32.17 | 15.06 | 63.39 | **3.60** |
+| | 2D→3D | GET3DGS(ours) | **24.41** | **13.68** | 75.44 | 3.90 |
+|---------|------|-------|------|----------|---------|-------|
+| MotorBike | 3D | PointFlow | - | - | 64.57 | 0.88 |
+| | 3D | DiT-3D | - | - | 75.34 | __0.81__ |
+| | 3D | DPM | - | - | 80.67 | 0.99 |
+| | 3D | PSF | - | - | 74.46 | 1.25 |
+| | 3D | MeshDiffusion | - | - | __89.04__ | 1.08 |
+| |-------|-------|------|----------|---------|-------|
+| | 2D→3D | GET3D | 74.04 | 45.66 | 65.75 | 1.74 |
+| | 2D→3D | DiffTF | 102.46 | 88.95 | 41.02 | 6.05 |
+| | 2D→3D | GaussianCube | **58.95** | **30.03** | 68.60 | 0.95 |
+| | 2D→3D | GET3DGS(ours) | 61.15 | 33.98 | **81.25** | **0.92** |
+|---------|------|-------|------|----------|---------|-------|
+| OmniObject3D | 2D→3D | GET3D | 28.92 | 12.01 | 31.21 | 6.34 |
+| | 2D→3D | DiffTF | 93.85 | 51.88 | 34.59 | **6.05** |
+| | 2D→3D | GaussianCube | 26.45 | 11.15 | **35.10** | 6.26 |
+| | 2D→3D | GET3DGS(ours) | **26.26** | **11.13** | 32.59 | 6.46 |
 
-<LaTeX formula="\int_a^b f(x) dx" />
+*Table: Evaluation of 2D image quality and 3D point cloud geometry quality under 512×512 resolution. The underlined values represent better geometric performance of the 3D baseline.*
 
-## Tables
 
-You can add simple tables using [GitHub Flavored Markdown syntax](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/organizing-information-with-tables):
+## Visualization
 
-| Model | Accuracy | F1 score | Training time (hours) |
-| :--- | :---: | :---: | :---: |
-| BERT-base | 0.89 | 0.87 | 4.5 |
-| RoBERTa-large | 0.92 | 0.91 | 7.2 |
-| DistilBERT | 0.86 | 0.84 | 2.1 |
-| XLNet | 0.90 | 0.89 | 6.8 |
+<Video source={car_video} />
+<Video source={chair_video} />
+<Video source={motorbike_video} />
+<Video source={game_video} />
+<Video source={beamcar_video} />
+
+
 
 ## BibTeX citation
 
 ```bibtex
-@misc{roman2024academic,
-  author = "{Roman Hauksson}",
-  title = "Academic Project Page Template",
-  year = "2024",
-  howpublished = "\url{https://research-template.roman.technology}",
-}
+@ARTICLE{10777594,
+  author={Yu, Haochen and Gong, Weixi and Chen, Jiansheng and Ma, Huimin},
+  journal={IEEE Transactions on Circuits and Systems for Video Technology}, 
+  title={GET3DGS: Generate 3D Gaussians Based on Points Deformation Fields}, 
+  year={2024},
+  volume={},
+  number={},
+  pages={1-1},
+  keywords={Three-dimensional displays;Solid modeling;Training;Rendering (computer graphics);Deformation;Point cloud compression;Geometry;Image reconstruction;Shape;Image color analysis;3D Gaussian Splatting;3D generation;Differentiable rendering},
+  doi={10.1109/TCSVT.2024.3511342}}
+
 ```
